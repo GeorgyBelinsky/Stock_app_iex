@@ -12,8 +12,14 @@ const StockChart = ({ symbol }) => {
     useEffect(() => {
         const fetchChartData = async () => {
             try {
+                const fromDate = new Date();
+                fromDate.setMonth(fromDate.getMonth() - 3); // 1 month back
+                const toDate = new Date();
+                const from = fromDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+                const to = toDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+                
                 const apiKey = import.meta.env.VITE_POLYGON_API_KEY;
-                const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/day/2023-04-01/2023-04-30?apiKey=${apiKey}`);
+                const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/range/1/day/${from}/${to}?apiKey=${apiKey}`);
                 const data = await response.json();
 
                 if (data.results) {
