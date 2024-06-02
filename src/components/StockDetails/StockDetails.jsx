@@ -8,13 +8,11 @@ const StockDetails = ({ stock }) => {
         const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
         const response = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`);
         const data = await response.json();
-        console.log(data);
         setStockData(data);
     };
 
     useEffect(()=>{
         fetchStockData(stock?.symbol);
-        console.log(stockData);
     },[stock])
 
 
@@ -33,6 +31,9 @@ const StockDetails = ({ stock }) => {
                 <Typography variant="body2">
                     Change: {stockData?.d} ({stockData?.dp}%)
                 </Typography>
+                <Typography variant="body2">
+                    Type: {stock?.type}
+                </Typography>
                 <Divider style={{ margin: '10px 0' }} />
                 <Typography variant="body2">
                     High price of a day: ${stockData?.h}
@@ -40,10 +41,6 @@ const StockDetails = ({ stock }) => {
                 <Typography variant="body2">
                     Low price of a day: ${stockData?.l}
                 </Typography>
-                <Typography variant="body2">
-                    Open price of the day: ${stockData?.o}
-                </Typography>
-               
             </CardContent>
         </Card>
     );

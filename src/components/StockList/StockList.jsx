@@ -15,7 +15,7 @@ const StockList = ({ stocks, setSelectedStock, searchTerm }) => {
             <List style={{ height: '66.8vh', overflowX: 'hidden', overflowY: 'auto' }}>
                 {filteredStocks.map((stock) => (
                     <ListItemButton key={stock.symbol} onClick={() => setSelectedStock(stock)}>
-                        <ListItemText primary={stock?.description} secondary={stock.symbol} />
+                        <ListItemText primary={stock?.description} secondary={stock.symbol}/>
                     </ListItemButton>
                 ))}
             </List>
