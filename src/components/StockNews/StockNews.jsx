@@ -20,7 +20,7 @@ const StockNews = ({ symbol }) => {
                 const data = await response.json();
 
                 // Limit the news to the first 10 articles
-                const limitedNews = data.slice(0, 10);
+                const limitedNews = data.slice(0, 15);
 
                 setNews(limitedNews);
                 setLoading(false);

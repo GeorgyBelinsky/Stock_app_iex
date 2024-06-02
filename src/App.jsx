@@ -24,7 +24,7 @@ const App = () => {
                     throw new Error('No data returned from the Finnhub endpoint');
                 }
 
-                const symbols = symbolsData.slice(0, 15); // Fetch most active stocks
+                const symbols = symbolsData.slice(0, 20); // Fetch most active stocks
 
                 setStocks(symbols);
                 setSelectedStock(symbols[0]);  // Default to the first company in the list
