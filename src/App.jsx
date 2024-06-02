@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Typography, Paper, CircularProgress, TextField } from '@mui/material';
+import { Container, Grid, Typography, Paper, CircularProgress, TextField, AppBar, Toolbar, Button, Modal, Box, Tabs, Tab } from '@mui/material';
 import StockList from './components/StockList/StockList';
 import StockDetails from './components/StockDetails/StockDetails';
 import StockChart from './components/StockChart/StockChart';
 import StockNews from './components/StockNews/StockNews';
-import Box from '@mui/material/Box';
 import './index.css';
 
 const App = () => {
@@ -12,6 +11,8 @@ const App = () => {
     const [selectedStock, setSelectedStock] = useState(null);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [modalOpen, setModalOpen] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
 
     useEffect(() => {
         const fetchStocks = async () => {
@@ -38,16 +39,25 @@ const App = () => {
         fetchStocks();
     }, []);
 
+    const handleModalOpen = () => setModalOpen(true);
+    const handleModalClose = () => setModalOpen(false);
+    const handleTabChange = (event, newValue) => setTabValue(newValue);
+
     if (loading) {
         return <CircularProgress />;
     }
 
     return (
         <Container maxWidth={false}>
-            <Typography variant="h4" gutterBottom>
-                Stock Market App
-            </Typography>
-            <Paper elevation={3} style={{ padding: '20px', height: '90vh' }}>
+            <AppBar position="static" style={{backgroundColor:'black'}}>
+                <Toolbar>
+                    <Typography variant="h5" style={{ flexGrow: 1 }}>
+                        Stock Market App
+                    </Typography>
+                    <Button color="inherit" onClick={handleModalOpen}>Login/Register</Button>
+                </Toolbar>
+            </AppBar>
+            <Paper elevation={3} style={{ padding: '0px 20px 20px 20px', height: '90vh', marginTop: '20px' }}>
                 <Grid container spacing={3}>
                     <Grid item xs={3}>
                         <TextField
@@ -75,8 +85,48 @@ const App = () => {
                     </Grid>
                 </Grid>
             </Paper>
+            <Modal open={modalOpen} onClose={handleModalClose}>
+                <Box
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 400,
+                        backgroundColor: 'white',
+                        padding: '20px',
+                        boxShadow: 24,
+                    }}
+                >
+                    <Tabs value={tabValue} onChange={handleTabChange}>
+                        <Tab label="Login" />
+                        <Tab label="Register" />
+                    </Tabs>
+                    {tabValue === 0 && <LoginForm />}
+                    {tabValue === 1 && <RegisterForm />}
+                </Box>
+            </Modal>
         </Container>
     );
 };
+
+const LoginForm = () => (
+    <Box>
+        <Typography variant="h6">Login</Typography>
+        <TextField label="Email" variant="outlined" fullWidth style={{ marginTop: '10px' }} />
+        <TextField label="Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
+        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px', backgroundColor:'black' }}>Login</Button>
+    </Box>
+);
+
+const RegisterForm = () => (
+    <Box>
+        <Typography variant="h6">Register</Typography>
+        <TextField label="Email" variant="outlined" fullWidth style={{ marginTop: '10px' }} />
+        <TextField label="Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
+        <TextField label="Confirm Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
+        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px' , backgroundColor:'black'}}>Register</Button>
+    </Box>
+);
 
 export default App;
