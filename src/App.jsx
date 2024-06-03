@@ -49,7 +49,7 @@ const App = () => {
 
     return (
         <Container maxWidth={false}>
-            <AppBar position="static" style={{backgroundColor:'black'}}>
+            <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h5" style={{ flexGrow: 1 }}>
                         Stock Market App
@@ -111,21 +111,19 @@ const App = () => {
 };
 
 const LoginForm = () => (
-    <Box>
-        <Typography variant="h6">Login</Typography>
+    <Box>   
         <TextField label="Email" variant="outlined" fullWidth style={{ marginTop: '10px' }} />
         <TextField label="Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
-        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px', backgroundColor:'black' }}>Login</Button>
+        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px'}}>Login</Button>
     </Box>
 );
 
 const RegisterForm = () => (
     <Box>
-        <Typography variant="h6">Register</Typography>
         <TextField label="Email" variant="outlined" fullWidth style={{ marginTop: '10px' }} />
         <TextField label="Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
         <TextField label="Confirm Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
-        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px' , backgroundColor:'black'}}>Register</Button>
+        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px'}}>Register</Button>
     </Box>
 );
 
