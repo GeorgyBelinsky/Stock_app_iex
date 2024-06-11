@@ -13,6 +13,7 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [modalOpen, setModalOpen] = useState(false);
     const [tabValue, setTabValue] = useState(0);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchStocks = async () => {
@@ -39,9 +40,44 @@ const App = () => {
         fetchStocks();
     }, []);
 
+    useEffect(() => {
+        const loggedInUser = localStorage.getItem('loggedInUser');
+        if (loggedInUser) {
+            setUser(JSON.parse(loggedInUser));
+        }
+        console.log(localStorage.getItem('users'));
+    }, []);
+
     const handleModalOpen = () => setModalOpen(true);
     const handleModalClose = () => setModalOpen(false);
     const handleTabChange = (event, newValue) => setTabValue(newValue);
+
+    const handleLogout = () => {
+        localStorage.removeItem('loggedInUser');
+        setUser(null);
+    };
+
+    const validatePassword = (password) => {
+        const passwordRegex = /^(?=.*[A-Z]).{8,}$/;
+        return passwordRegex.test(password);
+    };
+
+    const handleChangePassword = () => {
+        const newPassword = prompt('Enter new password');
+        if (!validatePassword(newPassword)) {
+            alert('Password must be at least 8 characters long and include at least one uppercase letter');
+            return;
+        }
+
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const updatedUsers = users.map((u) => (u.email === user.email ? { ...u, password: newPassword } : u));
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+
+        const updatedUser = { ...user, password: newPassword };
+        localStorage.setItem('loggedInUser', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        alert('Password changed successfully');
+    };
 
     if (loading) {
         return <CircularProgress />;
@@ -54,7 +90,23 @@ const App = () => {
                     <Typography variant="h5" style={{ flexGrow: 1 }}>
                         Stock Market App
                     </Typography>
-                    <Button color="inherit" onClick={handleModalOpen}>Login/Register</Button>
+                    {user ? (
+                        <>
+                            <Typography variant="body1" style={{ marginRight: '20px' }}>
+                                {user.email}
+                            </Typography>
+                            <Button color="inherit" onClick={handleChangePassword}>
+                                Change Password
+                            </Button>
+                            <Button color="inherit" onClick={handleLogout}>
+                                Logout
+                            </Button>
+                        </>
+                    ) : (
+                        <Button color="inherit" onClick={handleModalOpen}>
+                            Login/Register
+                        </Button>
+                    )}
                 </Toolbar>
             </AppBar>
             <Paper elevation={3} style={{ padding: '0px 20px 20px 20px', height: '90vh', marginTop: '20px' }}>
@@ -66,7 +118,7 @@ const App = () => {
                             fullWidth
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            style={{ marginBottom: '10px'}}
+                            style={{ marginBottom: '10px' }}
                         />
                         <StockList stocks={stocks} setSelectedStock={setSelectedStock} searchTerm={searchTerm} />
                     </Grid>
@@ -102,29 +154,143 @@ const App = () => {
                         <Tab label="Login" />
                         <Tab label="Register" />
                     </Tabs>
-                    {tabValue === 0 && <LoginForm />}
-                    {tabValue === 1 && <RegisterForm />}
+                    {tabValue === 0 && <LoginForm setUser={setUser} handleModalClose={handleModalClose} />}
+                    {tabValue === 1 && <RegisterForm setUser={setUser} handleModalClose={handleModalClose} />}
                 </Box>
             </Modal>
         </Container>
     );
 };
 
-const LoginForm = () => (
-    <Box>   
-        <TextField label="Email" variant="outlined" fullWidth style={{ marginTop: '10px' }} />
-        <TextField label="Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
-        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px'}}>Login</Button>
-    </Box>
-);
+const LoginForm = ({ setUser, handleModalClose }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-const RegisterForm = () => (
-    <Box>
-        <TextField label="Email" variant="outlined" fullWidth style={{ marginTop: '10px' }} />
-        <TextField label="Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
-        <TextField label="Confirm Password" variant="outlined" fullWidth type="password" style={{ marginTop: '10px' }} />
-        <Button variant="contained" color="primary" fullWidth style={{ marginTop: '10px'}}>Register</Button>
-    </Box>
-);
+    const handleLogin = () => {
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const foundUser = users.find((u) => u.email === email && u.password === password);
+        if (foundUser) {
+            localStorage.setItem('loggedInUser', JSON.stringify(foundUser));
+            setUser(foundUser);
+            handleModalClose();
+        } else {
+            alert('Invalid login credentials');
+        }
+    };
+
+    return (
+        <Box>
+            <TextField
+                label="Email"
+                variant="outlined"
+                fullWidth
+                style={{ marginTop: '10px' }}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+                label="Password"
+                variant="outlined"
+                fullWidth
+                type="password"
+                style={{ marginTop: '10px' }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                style={{ marginTop: '10px' }}
+                onClick={handleLogin}
+            >
+                Login
+            </Button>
+        </Box>
+    );
+};
+
+const RegisterForm = ({ setUser, handleModalClose }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const validatePassword = (password) => {
+        const passwordRegex = /^(?=.*[A-Z]).{8,}$/;
+        return passwordRegex.test(password);
+    };
+
+    const handleRegister = () => {
+        if (!validateEmail(email)) {
+            alert('Invalid email format');
+            return;
+        }
+
+        if (!validatePassword(password)) {
+            alert('Password must be at least 8 characters long and include at least one uppercase letter');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            alert('Passwords do not match');
+            return;
+        }
+
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const newUser = { email, password };
+
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('loggedInUser', JSON.stringify(newUser));
+        setUser(newUser);
+        alert('Registration successful');
+        handleModalClose();
+    };
+
+    return (
+        <Box>
+            <TextField
+                label="Email"
+                variant="outlined"
+                fullWidth
+                style={{ marginTop: '10px' }}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+                label="Password"
+                variant="outlined"
+                fullWidth
+                type="password"
+                style={{ marginTop: '10px' }}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+            />
+            <TextField
+                label="Confirm Password"
+                variant="outlined"
+                fullWidth
+                type="password"
+                style={{ marginTop: '10px' }}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+            <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                style={{ marginTop: '10px' }}
+                onClick={handleRegister}
+            >
+                Register
+            </Button>
+        </Box>
+    );
+};
 
 export default App;
